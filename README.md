@@ -84,6 +84,8 @@ npm run test  # Unit and component tests
 npm run e2e   # Browser tests for Arena + API
 ```
 
+The first `npm run e2e` downloads the Chromium binary Playwright needs (~150 MB). Subsequent runs reuse it.
+
 ## AI
 
 Includes nested `AGENTS.md` files that scope context to each part of the monorepo. Read the nearest `AGENTS.md` before editing.
