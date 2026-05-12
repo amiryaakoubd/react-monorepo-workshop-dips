@@ -1,44 +1,43 @@
-import { useState } from 'react'
-import { Dashboard } from './Dashboard'
-import { PatientPage } from './PatientPage'
+import { lazy, Suspense } from 'react'
+import { Spinner } from '@medix/ui'
+import { Route, Routes } from 'react-router'
 import { Layout } from './layouts/Layout'
 
-type Page = 'dashboard' | 'patients'
+const DashboardPage = lazy(() =>
+  import('./pages/DashboardPage').then((module) => ({
+    default: module.DashboardPage,
+  })),
+)
+
+const NotFoundPage = lazy(() =>
+  import('./pages/NotFoundPage').then((module) => ({
+    default: module.NotFoundPage,
+  })),
+)
+
+const PatientDetailPage = lazy(() =>
+  import('./pages/PatientDetailPage').then((module) => ({
+    default: module.PatientDetailPage,
+  })),
+)
+
+const PatientsPage = lazy(() =>
+  import('./pages/PatientsPage').then((module) => ({
+    default: module.PatientsPage,
+  })),
+)
 
 export function App() {
-  const [page, setPage] = useState<Page>('dashboard')
-  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(
-    null,
-  )
-
-  function showPatients(patientId: string | null = null) {
-    setSelectedPatientId(patientId)
-    setPage('patients')
-  }
-
-  function showDashboard() {
-    setSelectedPatientId(null)
-    setPage('dashboard')
-  }
-
-  function navigate(page: Page) {
-    setPage(page)
-    if (page === 'patients') {
-      setSelectedPatientId(null)
-    }
-  }
-
   return (
-    <Layout page={page} onNavigate={navigate} onGoHome={showDashboard}>
-      {page === 'dashboard' ? (
-        <Dashboard onNavigate={showPatients} />
-      ) : (
-        <PatientPage
-          selectedId={selectedPatientId}
-          onSelectPatient={setSelectedPatientId}
-          onBack={() => setSelectedPatientId(null)}
-        />
-      )}
-    </Layout>
+    <Suspense fallback={<Spinner />}>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<DashboardPage />} />
+          <Route path="patients" element={<PatientsPage />} />
+          <Route path="patients/:id" element={<PatientDetailPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+      </Routes>
+    </Suspense>
   )
 }

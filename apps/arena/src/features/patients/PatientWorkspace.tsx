@@ -1,22 +1,21 @@
 import { Badge, Card, CardContent } from '@medix/ui'
+import { Link } from 'react-router'
 import type { Patient } from '../../types'
 import { PatientJournalWorkspace } from '../journal/PatientJournalWorkspace'
 
 type PatientWorkspaceProps = {
   patient: Patient
-  onBack: () => void
 }
 
-export function PatientWorkspace({ patient, onBack }: PatientWorkspaceProps) {
+export function PatientWorkspace({ patient }: PatientWorkspaceProps) {
   return (
     <div>
-      <button
-        type="button"
-        onClick={onBack}
+      <Link
+        to="/patients"
         className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         ← Back to patient list
-      </button>
+      </Link>
 
       <Card>
         <CardContent className="p-6">

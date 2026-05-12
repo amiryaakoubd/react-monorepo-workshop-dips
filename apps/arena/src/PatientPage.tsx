@@ -1,28 +1,24 @@
 import { useEffect, useState } from 'react'
 import { Spinner } from '@medix/ui'
+import { useSearchParams } from 'react-router'
 import { PatientSelectionView } from './features/patients/PatientSelectionView'
 import { PatientWorkspace } from './features/patients/PatientWorkspace'
 import { fetchPatients } from './lib/api'
 import type { Patient } from './types'
 
 type PatientPageProps = {
-  selectedId: string | null
-  onSelectPatient: (id: string) => void
-  onBack: () => void
+  selectedId?: string
 }
 
-export function PatientPage({
-  selectedId,
-  onSelectPatient,
-  onBack,
-}: PatientPageProps) {
+export function PatientPage({ selectedId }: PatientPageProps) {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [patients, setPatients] = useState<Patient[]>([])
   const [isLoadingPatients, setIsLoadingPatients] = useState(true)
 
-  const [search, setSearch] = useState('')
-  const [genderFilter, setGenderFilter] = useState<'all' | 'male' | 'female'>(
-    'all',
-  )
+  const search = searchParams.get('search') ?? ''
+  const genderParam = searchParams.get('gender')
+  const genderFilter: 'all' | 'male' | 'female' =
+    genderParam === 'male' || genderParam === 'female' ? genderParam : 'all'
 
   useEffect(() => {
     fetchPatients()
@@ -43,7 +39,32 @@ export function PatientPage({
   if (isLoadingPatients) return <Spinner />
 
   if (selectedPatient) {
-    return <PatientWorkspace patient={selectedPatient} onBack={onBack} />
+    return <PatientWorkspace patient={selectedPatient} />
+  }
+
+  function handleSearchChange(value: string) {
+    const nextParams = new URLSearchParams(searchParams)
+    const normalizedValue = value.trim()
+
+    if (normalizedValue) {
+      nextParams.set('search', normalizedValue)
+    } else {
+      nextParams.delete('search')
+    }
+
+    setSearchParams(nextParams)
+  }
+
+  function handleGenderFilterChange(value: 'all' | 'male' | 'female') {
+    const nextParams = new URLSearchParams(searchParams)
+
+    if (value === 'all') {
+      nextParams.delete('gender')
+    } else {
+      nextParams.set('gender', value)
+    }
+
+    setSearchParams(nextParams)
   }
 
   return (
@@ -52,9 +73,8 @@ export function PatientPage({
       filteredPatients={filteredPatients}
       search={search}
       genderFilter={genderFilter}
-      onSearchChange={setSearch}
-      onGenderFilterChange={setGenderFilter}
-      onSelectPatient={onSelectPatient}
+      onSearchChange={handleSearchChange}
+      onGenderFilterChange={handleGenderFilterChange}
     />
   )
 }

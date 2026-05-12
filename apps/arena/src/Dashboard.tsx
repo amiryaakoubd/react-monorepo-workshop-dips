@@ -2,14 +2,11 @@
 import { useEffect, useState } from 'react'
 import { ArrowRight, Activity, Users, UserRound } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, Spinner } from '@medix/ui'
+import { Link } from 'react-router'
 import { fetchPatients } from './lib/api'
 import type { Patient } from './types'
 
-type DashboardProps = {
-  onNavigate: (patientId?: string) => void
-}
-
-export function Dashboard({ onNavigate }: DashboardProps) {
+export function Dashboard() {
   const [patients, setPatients] = useState<Patient[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -73,21 +70,19 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                 Jump straight into the journal
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => onNavigate()}
+            <Link
+              to="/patients"
               className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
             >
               See all <ArrowRight className="h-4 w-4" />
-            </button>
+            </Link>
           </CardHeader>
           <CardContent className="p-0">
             <ul className="divide-y">
               {recentPatients.map((p) => (
                 <li key={p.id}>
-                  <button
-                    type="button"
-                    onClick={() => onNavigate(p.id)}
+                  <Link
+                    to={`/patients/${p.id}`}
                     className="flex w-full items-center justify-between gap-4 px-6 py-3 text-left transition-colors hover:bg-accent"
                   >
                     <div className="flex flex-col">
@@ -97,7 +92,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
                       </span>
                     </div>
                     <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -113,13 +108,12 @@ export function Dashboard({ onNavigate }: DashboardProps) {
             <p className="text-sm text-primary-foreground/80">
               Search, filter, and document patient journeys — all in one system.
             </p>
-            <button
-              type="button"
-              onClick={() => onNavigate()}
+            <Link
+              to="/patients"
               className="inline-flex w-fit items-center gap-1 rounded-md bg-primary-foreground px-3 py-2 text-sm font-medium text-primary hover:bg-primary-foreground/90"
             >
               Go to patient list <ArrowRight className="h-4 w-4" />
-            </button>
+            </Link>
           </CardContent>
         </Card>
       </section>

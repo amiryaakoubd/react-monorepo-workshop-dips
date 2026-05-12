@@ -19,7 +19,6 @@ type PatientSelectionViewProps = {
   genderFilter: GenderFilter
   onSearchChange: (value: string) => void
   onGenderFilterChange: (value: GenderFilter) => void
-  onSelectPatient: (id: string) => void
 }
 
 export function PatientSelectionView({
@@ -29,7 +28,6 @@ export function PatientSelectionView({
   genderFilter,
   onSearchChange,
   onGenderFilterChange,
-  onSelectPatient,
 }: PatientSelectionViewProps) {
   return (
     <div>
@@ -81,11 +79,7 @@ export function PatientSelectionView({
       ) : (
         <div className="grid gap-3">
           {filteredPatients.map((patient) => (
-            <PatientCard
-              key={patient.id}
-              patient={patient}
-              onSelect={onSelectPatient}
-            />
+            <PatientCard key={patient.id} patient={patient} />
           ))}
         </div>
       )}

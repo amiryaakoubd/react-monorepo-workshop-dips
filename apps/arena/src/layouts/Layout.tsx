@@ -10,43 +10,40 @@ import {
 } from '@medix/ui'
 import { LayoutDashboard, Users } from 'lucide-react'
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary'
+import { NavLink, Outlet, useLocation } from 'react-router'
 import { logError } from '../lib/logger'
 
-type Page = 'dashboard' | 'patients'
-
-type LayoutProps = {
-  page: Page
-  onNavigate: (page: Page) => void
-  onGoHome: () => void
-  children: ReactNode
-}
-
-const navLinks: { id: Page; label: string; icon: typeof LayoutDashboard }[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'patients', label: 'Patients', icon: Users },
+const navLinks: {
+  to: string
+  label: string
+  icon: typeof LayoutDashboard
+  end?: boolean
+}[] = [
+  { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/patients', label: 'Patients', icon: Users },
 ]
 
-export function Layout({ page, onNavigate, onGoHome, children }: LayoutProps) {
+export function Layout() {
+  const location = useLocation()
+  const section = location.pathname.startsWith('/patients')
+    ? 'patients'
+    : 'dashboard'
+
   return (
     <div className="flex min-h-screen bg-background">
       <aside className="hidden lg:flex w-64 border-r bg-sidebar flex-col shrink-0">
         <div className="border-b p-4">
-          <button
-            type="button"
-            onClick={onGoHome}
+          <NavLink
+            to="/"
             className="flex items-center gap-2.5 text-left text-foreground transition-colors hover:text-foreground/80"
             aria-label="Go to dashboard"
           >
             <BrandMark productName="Arena" size="lg" />
-          </button>
+          </NavLink>
         </div>
         <nav className="p-3 flex flex-col gap-1">
-          {navLinks.map(({ id, label, icon: Icon }) => (
-            <NavButton
-              key={id}
-              active={page === id}
-              onClick={() => onNavigate(id)}
-            >
+          {navLinks.map(({ to, label, icon: Icon, end }) => (
+            <NavButton key={to} to={to} end={end}>
               <Icon className="h-4 w-4" />
               {label}
             </NavButton>
@@ -57,22 +54,16 @@ export function Layout({ page, onNavigate, onGoHome, children }: LayoutProps) {
       <div className="flex flex-1 flex-col min-w-0">
         <header className="lg:hidden sticky top-0 z-20 border-b bg-background/80 backdrop-blur">
           <div className="flex items-center justify-between px-4 h-14">
-            <button
-              type="button"
-              onClick={onGoHome}
+            <NavLink
+              to="/"
               className="flex items-center gap-2.5 text-left text-foreground transition-colors hover:text-foreground/80"
               aria-label="Go to dashboard"
             >
               <BrandMark productName="Arena" size="sm" />
-            </button>
+            </NavLink>
             <nav className="flex items-center gap-1">
-              {navLinks.map(({ id, label, icon: Icon }) => (
-                <NavButton
-                  key={id}
-                  compact
-                  active={page === id}
-                  onClick={() => onNavigate(id)}
-                >
+              {navLinks.map(({ to, label, icon: Icon, end }) => (
+                <NavButton key={to} to={to} end={end} compact>
                   <Icon className="h-4 w-4" />
                   <span className="hidden sm:inline">{label}</span>
                 </NavButton>
@@ -84,12 +75,12 @@ export function Layout({ page, onNavigate, onGoHome, children }: LayoutProps) {
           <ErrorBoundary
             FallbackComponent={PageErrorFallback}
             onError={(error, info) => {
-              logError(error, `Page content failed to render on ${page}`)
-              logError(info.componentStack, `Component stack for ${page}`)
+              logError(error, `Page content failed to render on ${section}`)
+              logError(info.componentStack, `Component stack for ${section}`)
             }}
-            resetKeys={[page]}
+            resetKeys={[section]}
           >
-            {children}
+            <Outlet />
           </ErrorBoundary>
         </main>
       </div>
@@ -120,29 +111,31 @@ function PageErrorFallback({ resetErrorBoundary }: FallbackProps) {
 }
 
 function NavButton({
-  active,
+  to,
+  end,
   compact,
-  onClick,
   children,
 }: {
-  active: boolean
+  to: string
+  end?: boolean
   compact?: boolean
-  onClick: () => void
   children: ReactNode
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'flex items-center rounded-md font-medium transition-colors',
-        compact ? 'gap-1.5 px-2.5 py-1.5 text-sm' : 'gap-2 px-3 py-2 text-sm',
-        active
-          ? 'bg-primary text-primary-foreground'
-          : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
-      )}
+    <NavLink
+      to={to}
+      end={end}
+      className={({ isActive }) =>
+        cn(
+          'flex items-center rounded-md font-medium transition-colors',
+          compact ? 'gap-1.5 px-2.5 py-1.5 text-sm' : 'gap-2 px-3 py-2 text-sm',
+          isActive
+            ? 'bg-primary text-primary-foreground'
+            : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+        )
+      }
     >
       {children}
-    </button>
+    </NavLink>
   )
 }

@@ -1,16 +1,15 @@
 import { Card, CardContent } from '@medix/ui'
+import { Link } from 'react-router'
 import type { Patient } from '../../types'
 
 type PatientCardProps = {
   patient: Patient
-  onSelect: (id: string) => void
 }
 
-export function PatientCard({ patient, onSelect }: PatientCardProps) {
+export function PatientCard({ patient }: PatientCardProps) {
   return (
-    <button
-      type="button"
-      onClick={() => onSelect(patient.id)}
+    <Link
+      to={`/patients/${patient.id}`}
       className="block w-full text-left text-inherit no-underline"
     >
       <Card className="cursor-pointer transition-shadow hover:shadow-md">
@@ -32,7 +31,7 @@ export function PatientCard({ patient, onSelect }: PatientCardProps) {
           </p>
         </CardContent>
       </Card>
-    </button>
+    </Link>
   )
 }
 
